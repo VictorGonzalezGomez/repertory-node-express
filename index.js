@@ -3,6 +3,7 @@ const express = require('express');
 const app = express();
 const PORT = 3000;
 const cors = require('cors');
+const {promises: fsPromises} = require("fs");
 
 app.use(cors());
 app.use(express.json())
@@ -18,30 +19,68 @@ app.get("/", (req, res) => {
 //adding songs to repertory.json
 app.post("/canciones", (req, res) => {
     const song = req.body;
-    const repertory = JSON.parse(fs.readFileSync('repertory.json', 'utf8'));
-    repertory.push(song);
-    fs.writeFileSync('repertory.json', JSON.stringify(repertory));
+    fs.promises.readFile('repertory.json', 'utf8')
+        .then(function(result  ) {
+            const resultJson = JSON.parse(result);
+            const repertory = [...resultJson];
+            repertory.push(song);
+            (async function main() {
+                try {
+                    await fsPromises.writeFile('repertory.json', JSON.stringify(repertory))
+                    console.log("File written successfully");
+                } catch (err) {
+                    console.error(err);
+                }})();
+        }).catch(function(error) {
+            console.log(error);
+        })
     res.send('song added successfully!');
 });
 //getting the reapository.json with the songs
 app.get("/canciones", (req, res) => {
-    const repertory = JSON.parse(fs.readFileSync('repertory.json'));
-    res.json(repertory);
+    fs.promises.readFile('repertory.json', 'utf8')
+        .then(function(result  ) {
+            res.json(JSON.parse(result))
+        });
 });
 // updating the song in the repository.json
 app.put("/canciones/:id", (req,res)=>{
     const song = req.body;
     const {id} = req.params;
-    const repertory = JSON.parse(fs.readFileSync('repertory.json'));
-    repertory[repertory.findIndex((elem)=> elem.id===id)]=song;
-    fs.writeFileSync('repertory.json', JSON.stringify(repertory));
+    fs.promises.readFile('repertory.json', 'utf8')
+        .then(function(result  ) {
+            const resultJson = JSON.parse(result);
+            const repertory = [...resultJson];
+            repertory[repertory.findIndex((elem)=> elem.id==id)]=song;
+            (async function main() {
+                try {
+                    await fsPromises.writeFile('repertory.json', JSON.stringify(repertory))
+                    console.log("File update successfully");
+                } catch (err) {
+                    console.error(err);
+                }})();
+        }).catch(function(error) {
+        console.log(error);
+    })
     res.send("the songs was update successfully!");
 });
 //deleten song from rapository.json
 app.delete("/canciones/:id", (req,res)=>{
     const {id} = req.params;
-    const repertory = JSON.parse(fs.readFileSync('repertory.json'));
-    repertory.splice(repertory[repertory.findIndex((elem)=> elem.id===id)], 1)
-    fs.writeFileSync('repertory.json', JSON.stringify(repertory));
+    fs.promises.readFile('repertory.json', 'utf8')
+        .then(function(result  ) {
+            const resultJson = JSON.parse(result);
+            const repertory = [...resultJson];
+            repertory.splice(repertory.findIndex((elem)=> elem.id==id), 1);
+            (async function main() {
+                try {
+                    await fsPromises.writeFile('repertory.json', JSON.stringify(repertory))
+                    console.log("File update successfully");
+                } catch (err) {
+                    console.error(err);
+                }})();
+        }).catch(function(error) {
+        console.log(error);
+    })
     res.send("the songs was delete successfully!");
 });
