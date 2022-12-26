@@ -124,7 +124,11 @@
       tono: tono.value,
     };
     console.log(data);
-    axios.post(url, data).then(() => getData());
+    axios.post(url, data)
+            .then(() => getData())
+            .catch( (e) => {
+              alert(e)
+            });
   }
 
   function eliminarCancion(i, id) {
