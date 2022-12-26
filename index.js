@@ -23,3 +23,8 @@ app.post("/canciones", (req, res) => {
     fs.writeFileSync('repertory.json', JSON.stringify(repertory));
     res.send('song added succesfully')
 });
+//geting the reapository.json with the songs
+app.get("/canciones", (req, res) => {
+    const repertory = JSON.parse(fs.readFileSync('repertory.json'));
+    res.json(repertory)
+});
