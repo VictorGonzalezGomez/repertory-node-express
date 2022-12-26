@@ -21,10 +21,19 @@ app.post("/canciones", (req, res) => {
     const repertory = JSON.parse(fs.readFileSync('repertory.json', 'utf8'));
     repertory.push(song);
     fs.writeFileSync('repertory.json', JSON.stringify(repertory));
-    res.send('song added succesfully')
+    res.send('song added successfully!')
 });
-//geting the reapository.json with the songs
+//getting the reapository.json with the songs
 app.get("/canciones", (req, res) => {
     const repertory = JSON.parse(fs.readFileSync('repertory.json'));
     res.json(repertory)
+});
+// updating the song in the repository.json
+app.put("/canciones/:id", (req,res)=>{
+    const song = req.body;
+    const {id} = req.params;
+    const repertory = JSON.parse(fs.readFileSync('repertory.json'));
+    repertory[repertory.findIndex((elem)=> elem.id===id)]=song;
+    fs.writeFileSync('repertory.json', JSON.stringify(repertory));
+    res.send("the songs was update successfully!")
 });
