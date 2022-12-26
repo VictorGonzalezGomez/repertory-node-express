@@ -15,3 +15,11 @@ app.listen(PORT, (err)=>{
 app.get("/", (req, res) => {
     res.sendFile(__dirname + "/index.html");
 });
+//adding songs to repertory.json
+app.post("/canciones", (req, res) => {
+    const song = req.body;
+    const repertory = JSON.parse(fs.readFileSync('repertory.json', 'utf8'));
+    repertory.push(song);
+    fs.writeFileSync('repertory.json', JSON.stringify(repertory));
+    res.send('song added succesfully')
+});
