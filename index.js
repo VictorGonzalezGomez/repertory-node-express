@@ -10,7 +10,6 @@ app.use(express.json());
 //bind and listen the connections of the PORT
 app.listen(PORT, (err)=>{
     if (err) console.log("Error in server setup");
-    console.log("Server listening on Port", PORT);
 });
 // transfers the file index.html to the path "/"
 app.get("/", (req, res) => {
@@ -24,11 +23,16 @@ app.post("/canciones", (req, res) => {
             .then(function(result  ) {
                 const resultJson = JSON.parse(result);
                 const repertory = [...resultJson];
+                // const songExist = repertory.filter( elem => elem.titulo == song.titulo && elem.artista == song.artista  && elem.tono == song.tono);
+                // if (songExist[0].titulo == song.titulo && songExist[0].artista == song.artista && songExist[0].tono == song.tono){
+                //     console.log("the song is already exists!!!")
+                //     res.status(400).send("the song is already exists!!!");
+                // }
                 repertory.push(song);
                 (async function main() {
                     try {
                         await fsPromises.writeFile('repertory.json', JSON.stringify(repertory))
-                        console.log("File write successfully");
+
                     } catch (err) {
                         console.error(err);
                     }})();
@@ -36,7 +40,6 @@ app.post("/canciones", (req, res) => {
         })
         res.send('song added successfully!');
     }else{
-        console.error("All fields are required")
         res.status(400).send("All fields are required!!!!");
     }
 });
@@ -50,12 +53,16 @@ app.get("/canciones", (req, res) => {
 // updating the song in the repository.json
 app.put("/canciones/:id", (req,res)=>{
     const song = req.body;
+    const {id} = req.params;
     if(song.titulo && song.artista && song.tono){
-        const {id} = req.params;
         fs.promises.readFile('repertory.json', 'utf8')
             .then(function(result  ) {
                 const resultJson = JSON.parse(result);
                 const repertory = [...resultJson];
+                const idExists = repertory.some(elem => elem.id==id);
+                if (!idExists){
+                    res.status(400).send("the song doesn't exists!!!");
+                }
                 repertory[repertory.findIndex((elem)=> elem.id==id)]=song;
                 (async function main() {
                     try {
@@ -71,24 +78,30 @@ app.put("/canciones/:id", (req,res)=>{
     }else {
         res.send("All fields are required!!!!");
     }
+
 });
 //deleted song from repository.json
 app.delete("/canciones/:id", (req,res)=>{
     const {id} = req.params;
+    const idAUX = 1818;
     fs.promises.readFile('repertory.json', 'utf8')
         .then(function(result  ) {
             const resultJson = JSON.parse(result);
             const repertory = [...resultJson];
+            const idExists = repertory.some(elem => elem.id==id);
+            if (!idExists){
+                res.status(400).send("the song doesn't exists!!!");
+            }
             repertory.splice(repertory.findIndex((elem)=> elem.id==id), 1);
             (async function main() {
                 try {
                     await fsPromises.writeFile('repertory.json', JSON.stringify(repertory))
-                    console.log("File update successfully");
+
                 } catch (err) {
                     console.error(err);
                 }})();
         }).catch(function(error) {
-        console.log(error);
+        console.error(error);
     })
     res.send("the songs was delete successfully!");
 });
