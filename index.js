@@ -23,11 +23,11 @@ app.post("/canciones", (req, res) => {
             .then(function(result  ) {
                 const resultJson = JSON.parse(result);
                 const repertory = [...resultJson];
-                // const songExist = repertory.filter( elem => elem.titulo == song.titulo && elem.artista == song.artista  && elem.tono == song.tono);
-                // if (songExist[0].titulo == song.titulo && songExist[0].artista == song.artista && songExist[0].tono == song.tono){
-                //     console.log("the song is already exists!!!")
-                //     res.status(400).send("the song is already exists!!!");
-                // }
+                const songExists = repertory.filter(elem => elem.titulo == song.titulo && elem.artista == song.artista  && elem.tono == song.tono);
+                if (songExists.length !=0){
+                    console.log("the song is already exists!!!")
+                    res.status(400).send("the song is already exists!!!");
+                }
                 repertory.push(song);
                 (async function main() {
                     try {
@@ -67,7 +67,6 @@ app.put("/canciones/:id", (req,res)=>{
                 (async function main() {
                     try {
                         await fsPromises.writeFile('repertory.json', JSON.stringify(repertory))
-                        console.log("File update successfully");
                     } catch (err) {
                         console.error(err);
                     }})();
@@ -96,7 +95,6 @@ app.delete("/canciones/:id", (req,res)=>{
             (async function main() {
                 try {
                     await fsPromises.writeFile('repertory.json', JSON.stringify(repertory))
-
                 } catch (err) {
                     console.error(err);
                 }})();
